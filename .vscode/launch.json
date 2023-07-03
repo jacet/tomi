@@ -1,0 +1,39 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: FastAPI",
+            "type": "python",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "api.main:app",
+                "--reload",
+                "--host", "localhost",
+                "--port", "5000"
+            ],
+            "jinja": true,
+            "justMyCode": true
+        },
+        {
+            "name": "Gatsby",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/web",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "develop"
+            ],
+            "console": "integratedTerminal",
+            "restart": true,
+            "internalConsoleOptions": "neverOpen"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "FastAPI + Gatsby",
+            "configurations": ["Python: FastAPI", "Gatsby"]
+        }
+    ]
+}
