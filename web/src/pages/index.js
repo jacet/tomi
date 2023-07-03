@@ -1,6 +1,6 @@
 import * as React from "react";
 import Orb from "../components/orb";
-import orb_img from "../images/orb.gif";
+
 
 const pageStyles = {
   color: "#232129",
@@ -23,7 +23,8 @@ const IndexPage = () => {
   return (
     <main style={pageStyles}>
       <title>TOMI</title>
-      <img style={{maxWidth: '100%', height: 'auto'}} src={orb_img} alt="orb"></img>
+      <Orb state="listening"> </Orb>
+      
     </main>
   )
 }

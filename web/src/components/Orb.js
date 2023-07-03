@@ -1,5 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import styled, { keyframes, css } from 'styled-components';
+import orb_img from "../images/orb.gif";
+
+  // Recording elements 
+  const [recording, setRecording] = useState(false);
+  const mediaRecorderRef = useRef(null);
+  const recordedChunksRef = useRef([]);
+
 
 const pulse = keyframes`
   0% {
@@ -43,13 +50,6 @@ const OrbBase = styled.div`
   }
 `;
 
-const positions = [
-    { top: '-10px', left: '40px' },
-    { top: '40px', right: '-10px' },
-    { bottom: '-10px', left: '40px' },
-    { top: '40px', left: '-10px' },
-    { bottom: '-10px', right: '-10px' },
-  ];
 
 const getColor = (state) => {
     switch (state) {
@@ -65,47 +65,47 @@ const getColor = (state) => {
         return '#2196f3';
     }
   };
-  
 
-// Define the styled component for the ripple
-const Ripple = styled.div`
-  position: absolute;
-  border: 2px solid ${(props) => getColor(props.state)};
-  border-radius: 50%;
-  animation: ${(props) => ripple(props.duration)} infinite linear;
-  animation-delay: ${(props) => props.delay}s;
-`;
 
-// Define the ripple animation
-const ripple = (duration) => keyframes`
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.5);
-  }
-`;
+  const handleStartRecording = async () => {
+    if (window.MediaRecorder) {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorderRef.current = new MediaRecorder(stream);
 
-// Define the ripple component
-const RippleComponent = ({ state, index }) => {
-  // Randomize the duration between 0.5s and 2.5s
-  const duration = Math.random() * 2 + 0.5;
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordedChunksRef.current.push(event.data);
+        }
+      };
 
-  return (
-    <Ripple state={state} duration={duration} delay={index * 0.1} />
-  );
-};
+      mediaRecorderRef.current.start();
+      setRecording(true);
+    }
+  };
+
+  const handleStopRecording = async () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      setRecording(false);
+
+      const blob = new Blob(recordedChunksRef.current, { type: 'audio/webm' });
+      recordedChunksRef.current = [];
+
+      // You can then upload the blob to your API endpoint for transcription
+      // const formData = new FormData();
+      // formData.append('audio', blob);
+      // await fetch('YOUR_API_ENDPOINT', { method: 'POST', body: formData });
+    }
+  };
+
 
 const Orb = ({ state }) => {
-  const ripples = Array.from({ length: 20 }).map((_, i) => (
-    <RippleComponent state={state} index={i} key={i} />
-  ));
+
 
   return (
-    <OrbBase className={state}>
-      {(state === 'listening' || state === 'communication') && ripples}
+    <OrbBase onClick={recording ? handleStopRecording : handleStartRecording} className={state}>
+      
+      <img style={{maxWidth: '100%', height: 'auto'}} src={orb_img} alt="orb"></img>
     </OrbBase>
   );
 };
